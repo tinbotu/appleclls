@@ -1,0 +1,26 @@
+message WiFiAccessoPunto{ 
+  required string bssid = 1; 
+    message Location {
+      optional int64 latitude = 1;
+      optional int64 longitude = 2;
+      optional int64 unknown3 = 3; 
+      optional int64 unknown4 = 4; 
+      optional int64 unknown5 = 5; 
+      optional int64 unknown6 = 6; 
+      optional int64 unknown7 = 7; 
+      optional int64 unknown8 = 8; 
+      optional int64 unknown9 = 9; 
+      optional int64 unknown10 = 10; 
+      optional int64 unknown11 = 11; 
+      optional int64 unknown12 = 12; 
+    }
+  optional Location location = 2; 
+  optional int32 channel = 21;
+}
+
+message cllswloc {
+  optional int64 unknown1 = 1; 
+  repeated WiFiAccessoPunto ap = 2; 
+  optional int32 unknown3 = 3; 
+  optional int32 get_neighbour = 4; 
+}
