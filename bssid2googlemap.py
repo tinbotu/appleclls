@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # vim: ts=4 sw=4 sts=4 ff=unix ft=python expandtab
 
@@ -7,7 +7,8 @@ import requests
 import re
 import sys
 import urllib
-
+import urllib.parse
+import struct
 import clls_pb2
 
 
@@ -30,7 +31,8 @@ def query_cllswloc(query_bssid, neighbour=False):
     query_serialized = query.SerializeToString()
 
     # padding apple's nazo binary, not pb, at head
-    data = ("\x00\x01\x00\x05en_US\x00\x13com.apple.locationd\x00\x0c8.1.2.12B440\x00\x00\x00\x01\x00\x00\x00%c%s" % (len(query_serialized), query_serialized))
+    len_b = struct.pack('>h', len(query_serialized))
+    data = b"\x00\x01\x00\x05en_US\x00\x13com.apple.locationd\x00\x0c8.1.2.12B440\x00\x00\x00\x01\x00\x00" + len_b + query_serialized
 
     headers = {'Accept': '*/*',
                'Accept-Encoding': 'gzip, deflate',
@@ -38,7 +40,7 @@ def query_cllswloc(query_bssid, neighbour=False):
                'User-Agent': 'locationd/1861.0.23 CFNetwork/758.2.8 Darwin/15.0.0',
                'Accept-Language': 'en-us', }
 
-    r = requests.post('https://gs-loc.apple.com/clls/wloc', headers=headers, data=data, verify=False, timeout=10)
+    r = requests.post('https://gs-loc.apple.com/clls/wloc', headers=headers, data=data, timeout=10)
 
     if not r.status_code == requests.codes.ok:
         raise
@@ -102,14 +104,13 @@ def show_bssidlocation(bssids, neighbour=False, machine_readable=False, verbose=
                 continue
 
             if not machine_readable:
-                print("http://maps.google.com/?ll=%f,%f&q=%f,%f%%28%s%%29" % (lat, lng, lat, lng, urllib.quote(ap.bssid)))
+                print("http://maps.google.com/?ll=%f,%f&q=%f,%f%%28%s%%29" % (lat, lng, lat, lng, urllib.parse.quote(ap.bssid)))
             else:
                 print("%f\t%f\t%s" % (lat, lng, ap.bssid))
 
             # sometimes multiple response come even neighbour flag is not true
             if not neighbour:
                 break
-
 
 
 def main():
@@ -137,7 +138,6 @@ def main():
             assert False, "unknown option"
 
     show_bssidlocation(args, neighbour=neighbour, machine_readable=machine_readable, verbose=verbose)
-
 
 
 if __name__ == "__main__":

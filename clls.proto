@@ -1,3 +1,4 @@
+syntax = "proto2";
 message WiFiAccessoPunto{ 
   required string bssid = 1; 
     message Location {
